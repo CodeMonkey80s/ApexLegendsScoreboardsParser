@@ -13,7 +13,7 @@ php bin/console app:scoreboards-statistics [--summary]
 
 After running `php bin/console app:scoreboards-process`:
 
-_This command processes all scoreboards images from directory defined inside `.env` and sends them to Google Vision OCR._
+_This command processes all scoreboards images from directory defined inside `.env` and sends them to Google Vision OCR. Data returned by the API is written into the `data.json` file._
 
 ```
 $ php bin/console app:scoreboards-process
@@ -166,9 +166,11 @@ Example of Scoreboard Screenshot:
 
 [Google Cloud Vision PHP](https://github.com/googleapis/google-cloud-php-vision)
 
-# More...
+# More Information...
 
 - Jump into the `src/Command/*` and adjust them for Your needs!
+- This tool only processes data for one (Your) username!
+- Do not make screenshots with an overlay displayed like MSI Afterburner as this may affect the OCR!
 
 # Licence
 
