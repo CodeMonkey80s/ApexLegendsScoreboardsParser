@@ -138,6 +138,10 @@ $ composer install
 
 # Configuration
 
+### IMPORTANT: This tool is intended only for scanning win scoreboards. It assumes that every screenshot is a win. Also it only processes fields for one selected username.
+
+Fields: "Kills / Assists / Knocks", "Damage Dealt", "Revive Given", "Respawn Given"
+
 Before running the commands You need to update the `.env` configuration file:
 
 ```
