@@ -7,6 +7,7 @@ parameters:
     app.scoreboards_data_file: '%kernel.project_dir%/%env(APP_SCOREBOARDS_DATA_FILE)%'
     app.scoreboards_username: '%env(APP_SCOREBOARDS_USERNAME)%'
     app.scoreboards_directory: '%kernel.project_dir%/%env(APP_SCOREBOARDS_DIRECTORY)%'
+    app.scoreboards_area: [1400, 360, 290, 640]
 
 services:
     # default configuration for services in *this* file
@@ -18,6 +19,7 @@ services:
             $dataFile: '%app.scoreboards_data_file%'
             $username: '%app.scoreboards_username%'
             $directory: '%app.scoreboards_directory%'
+            $area: '%app.scoreboards_area%'
     app.component.json:
         class: App\Component\JSON
 

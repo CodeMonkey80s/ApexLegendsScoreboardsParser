@@ -41,7 +41,7 @@ class JSON
         string $filename,
         array $data
     ): void {
-        $result = file_put_contents($filename, json_encode($data));
+        $result = file_put_contents($filename, json_encode($data, JSON_PRETTY_PRINT));
         if ($result === false) {
             throw new RuntimeException("*** ERROR *** Saving JSON file failed!");
         }

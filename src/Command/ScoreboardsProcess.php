@@ -10,6 +10,7 @@ use Symfony\Component\Console\Exception\InvalidArgumentException;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
@@ -52,6 +53,16 @@ class ScoreboardsProcess extends Command
     protected string $directory = '';
 
     /**
+     * @var bool $optionDebug
+     */
+    protected bool $optionDebug = false;
+
+    /**
+     * @var array
+     */
+    protected array $area = [];
+
+    /**
      * @param string $keyFile
      * @param string $dataFile
      * @param string $username
@@ -61,12 +72,14 @@ class ScoreboardsProcess extends Command
         string $keyFile,
         string $dataFile,
         string $username,
-        string $directory
+        string $directory,
+        array $area
     ) {
         $this->keyFile = $keyFile;
         $this->dataFile = $dataFile;
         $this->username = $username;
         $this->directory = $directory;
+        $this->area = $area;
 
         parent::__construct();
     }
@@ -77,17 +90,41 @@ class ScoreboardsProcess extends Command
      * @throws ApiException
      */
     private function parseImage(
-        string $path
+        string $path,
+        bool $useCropping = false,
     ): string {
-        $imageAnnotator = new ImageAnnotatorClient();
-        $image = file_get_contents($path);
+        if ($useCropping) {
+            $orginainalImage = imagecreatefrompng($path);
+            $croppedImage = imagecrop(
+                $orginainalImage,
+                [
+                    'x'      => $this->area[0],
+                    'y'      => $this->area[1],
+                    'width'  => $this->area[2],
+                    'height' => $this->area[3],
+                ]
+            );
+            $temporaryImageFile = $this->directory . '___temporary.png';
+            imagepng($croppedImage, $temporaryImageFile);
+        } else {
+            $temporaryImageFile = $path;
+        }
+        $imageAnnotator = new ImageAnnotatorClient(
+            ['model' => 'buildin/latest']
+        );
+        $image = file_get_contents($temporaryImageFile);
         $fields = null;
         if ($image !== false) {
             $response = $imageAnnotator->textDetection($image);
             $fields = $response->getTextAnnotations();
-        }
+    	}
         $imageAnnotator->close();
         if ($fields && $fields->count() > 0) {
+            if ($this->optionDebug) {
+                echo "\n***** OCR OUTPUT *****\n";
+                print_r($fields->offsetGet(0)->getDescription());
+                echo "=========\n";
+            }
             return $fields->offsetGet(0)->getDescription();
         } else {
             return '';
@@ -100,7 +137,8 @@ class ScoreboardsProcess extends Command
     protected function configure(): void
     {
         $this
-            ->setHelp('This command parses all images in selected directory and sends them to Google Vision OCR for processing.');
+            ->setHelp('This command parses all images in selected directory and sends them to Google Vision OCR for processing.')
+            ->addOption('debug', null, InputOption::VALUE_NONE, 'Prints debug messages.');
     }
 
     /**
@@ -112,6 +150,7 @@ class ScoreboardsProcess extends Command
         InputInterface $input,
         OutputInterface $output
     ): void {
+        $this->optionDebug = $input->getOption('debug');
         if (empty($this->username)) {
             throw new InvalidArgumentException("*** ERROR *** Username: '$this->username' is empty!");
         }
@@ -188,7 +227,7 @@ class ScoreboardsProcess extends Command
             } else {
                 $output->write("<done>Parsing... </done>");
                 $timeStart = microtime(true);
-                $text = $this->parseImage($path);
+                $text = $this->parseImage($path, true);
                 $timeEnd = microtime(true);
                 $time = $timeEnd - $timeStart;
                 $time = round($time, 2);
@@ -204,7 +243,6 @@ class ScoreboardsProcess extends Command
             $output->write("\n");
             $json->saveJSONFile($this->dataFile, $data);
         }
-
 
         $output->write("<head>Processed   :  $processedImages</head>\n");
         $output->write("<head>Skipped     :  $skippedImages</head>\n");

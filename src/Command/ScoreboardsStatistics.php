@@ -143,31 +143,71 @@ class ScoreboardsStatistics extends Command
             }
             $i = 0;
             foreach ($row['text'] as $text) {
+                $statReviveGiven = 0;
+                if ($text == 'Revive Given') {
+                    if (isset($row['text'][$i + 1]) && is_numeric($row['text'][$i + 1])) {
+                       $statReviveGiven = $row['text'][$i + 1];
+                       if (!$optionSummary) {
+                           $output->write("<info>Revive      :  {$statReviveGiven}</info>\n");
+                       }
+                    }
+                    if (is_numeric($statReviveGiven)) {
+                        $totalReviveGiven += $statReviveGiven;
+                        if (isset($details[$statReviveGiven])) {
+                            $details[$statReviveGiven]['revives']++;
+                        }
+                    }
+                }
+                $statRespawnGiven = 0;
+                if ($text == 'Respawn Given') {
+                    if (isset($row['text'][$i + 1]) && is_numeric($row['text'][$i + 1])) {
+                        $statRespawnGiven = $row['text'][$i + 1];
+                        if (!$optionSummary) {
+                            $output->write("<info>Respawn     :  {$statRespawnGiven}</info>\n");
+                        }
+                    }
+                    if (is_numeric($statRespawnGiven)) {
+                        $totalRespawnGiven += $statRespawnGiven;
+                        if (isset($details[$statRespawnGiven])) {
+                            $details[$statRespawnGiven]['respawns']++;
+                        }
+                    }
+                }
                 if ($text == $this->username) {
                     $stats = explode('/', $row['text'][$i + 2]);
                     $statDamage = $row['text'][$i + 4];
-                    $statReviveGiven = $row['text'][$i + 8];
-                    $statRespawnGiven = $row['text'][$i + 10];
-                    $statKills = $stats[0];
-                    $statAssists = $stats[1];
-                    $statKnocks = $stats[2];
-                    $totalDamage += $statDamage;
-                    $totalKills += $statKills;
-                    $totalAssists += $statAssists;
-                    $totalKnocks += $statKnocks;
-                    $totalReviveGiven += $statReviveGiven;
-                    $totalRespawnGiven += $statRespawnGiven;
+                    $statKills = $stats[0] ?? 0;
+                    $statAssists = $stats[1] ?? 0;
+                    $statKnocks = $stats[2] ?? 0;
                     if (!$optionSummary) {
                         $output->write("<info>Statistics  :  </info><head>$statKills $statAssists $statKnocks $statDamage</head>\n");
                     }
-                    $details[$statKills]['kills']++;
-                    $details[$statAssists]['assists']++;
-                    $details[$statKnocks]['knocks']++;
-                    $details[$statReviveGiven]['revives']++;
-                    $details[$statRespawnGiven]['respawns']++;
-                    $index = round($statDamage / 100);
-                    if (isset($details[$index]['damage'])) {
-                        $details[$index]['damage']++;
+                    if (is_numeric($statDamage)) {
+                        $totalDamage += $statDamage;
+                    }
+                    if (is_numeric($statKills)) {
+                        $totalKills += $statKills;
+                    }
+                    if (is_numeric($statAssists)) {
+                        $totalAssists += $statAssists;
+                    }
+                    if (is_numeric($statKnocks)) {
+                        $totalKnocks += $statKnocks;
+                    }
+                    if (isset($details[$statKills])) {
+                        $details[$statKills]['kills']++;
+                    }
+                    if (isset($details[$statAssists])) {
+                        $details[$statAssists]['assists']++;
+                    }
+                    if (isset($details[$statKnocks])) {
+                        $details[$statKnocks]['knocks']++;
+                    }
+                    if (is_numeric($statDamage)) {
+                        $index = round($statDamage / 100);
+                        if (isset($details[$index]['damage'])) {
+                            $details[$index]['damage']++;
+                        }
                     }
                 }
                 $i++;
