@@ -138,11 +138,14 @@ $ composer install
 
 # Configuration
 
-### IMPORTANT: This tool is intended only for scanning win scoreboards. It assumes that every screenshot is a win. Also it only processes fields for one selected username.
+### IMPORTANT:
+- This tool is intended only for scanning win scoreboards.
+- It assumes that every screenshot is a win.
+- It only processes fields for one selected username (see area definition in the services.yml file)
 
 Fields: "Kills / Assists / Knocks", "Damage Dealt", "Revive Given", "Respawn Given"
 
-Before running the commands You need to update the `.env` configuration file:
+Before running the commands You need to update the `.env` configuration file and `services.yml` file:
 
 ```
 APP_SCOREBOARDS_KEY_FILE='config/keyfile.json'
@@ -159,10 +162,11 @@ _You can change that behaviour inside the `services.yml` file._
 - Put Your `keyfile.json` (for accessing Google Vision OCR API) inside the `APP_SCOREBOARDS_KEY_FILE` file. You have to configure Your Google Account and enable access to the Google Vision OCR API through the keyfile and configure billing there.
 - Change username to Yours in `APP_SCOREBOARDS_USERNAME`
 - While images are being processed the `data.json` file is updated
+- Edit `services.yml` file and update `app.scoreboards_area` (x, y, width, height) to match Your profile statistics (see image below - red square)
 
 Example of Scoreboard Screenshot:
 
-<img width="100%" src="https://github.com/RetroCoder80s/ApexLegendsScoreboardsParser/blob/main/public/scoreboards/Apex Legends_2022.04.28-01.30.png">
+<img width="100%" src="https://github.com/RetroCoder80s/ApexLegendsScoreboardsParser/blob/main/public/Apex Legends_2022.03.10-06.18-area.png">
 
 # Documentation
 
@@ -175,6 +179,7 @@ Example of Scoreboard Screenshot:
 - Jump into the `src/Command/*` and adjust them for Your needs!
 - This tool only processes data for one (Your) username!
 - Do not make screenshots with an overlay displayed like MSI Afterburner as this may affect the OCR!
+- The Google OCR is not perfect. Sometimes it will put wrong Kills/Assists/Knocks in the `data.json`, so before You run second command make sure that the data is correct. Example of invalid OCR reading "371/4" should be "3/1/4. You have to manually fix that unfortunately.
 
 # Licence
 
