@@ -118,6 +118,7 @@ class ScoreboardsProcess extends Command
             $response = $imageAnnotator->textDetection($image);
             $fields = $response->getTextAnnotations();
     	}
+        unlink($temporaryImageFile);
         $imageAnnotator->close();
         if ($fields && $fields->count() > 0) {
             if ($this->optionDebug) {
@@ -216,6 +217,9 @@ class ScoreboardsProcess extends Command
             $date = explode('_', $fileinfo)[1];
             $datetime = \DateTime::createFromFormat('Y.m.d-H.i', $date);
             $fulldate =  $datetime->format("Y/m/d H:i");
+            if (!$fulldate) {
+                $fulldate == 'Unknown';
+            }
             $output->write("<info>ID          :  $image</info>\n");
             $output->write("<info>Hash        :  $hash</info>\n");
             $output->write("<info>Filename    :  \"$filename\"</info>\n");
